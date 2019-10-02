@@ -4,15 +4,18 @@ require('dotenv').config()
 const morgan = require('morgan')
 const mongoose = require('mongoose')
 const expressJwt = require('express-jwt')
+const path = require("path")
 const PORT = process.env.PORT || 7000
 
 
 // * Middleware for every request
 app.use(morgan('dev'))
 app.use(express.json())
+app.use(express.static(path.join(__dirname, "client", "build")))
+
 
 // * DB Connection
-mongoose.connect("mongodb://localhost:27017/guitar-practice-space",
+mongoose.connect(process.env.MONGODB_URI ||"mongodb://localhost:27017/guitar-practice-space",
 {
     useNewUrlParser: true,
     useFindAndModify: false,
@@ -34,6 +37,11 @@ app.use((err, req, res, next) => {
     }
     return res.send({ errMsg: err.message })
 })
+
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "build", "index.html"));
+});
 
 // * Listen
 app.listen(PORT, () => {
